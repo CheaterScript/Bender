@@ -39,17 +39,22 @@ def read_data():
 			name = os.path.splitext(file)
 			img = data.read_img(path + '/' + file)
 			txt = data.read_txt("E:/DL/Test/data/train/txt_train" + '/' + name[0] + '.txt')
+			container = np.array([])
 			for row in txt.itertuples():
 				arr = row[1].split(',', 8)
 				item = np.array(arr[0:8], dtype=np.float32)
 				string = arr[8]
-				points = np.array(data.sort_points(item)).reshape((4,3))
-				print(points)
-				new_img = data.crop_img(points, img)
+				box = data.fit(item)
+				# 裁剪
+				new_img = data.crop_img(box, img)
+				np.insert(container, 0, values=new_img, axis=0)
+				# print(points)
+				# new_img = data.crop_img(points, img)
 				# data.imgshow_pd(item, img)
 				# print(new_img.shape)
 				# plt.imshow(new_img)
 				# plt.show()
+		data.save_h5('./data.h5', container, 'X')
 read_data()
 
 # print(imgs.shape, txts.shape)

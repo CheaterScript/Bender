@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
-from cnn.net import model
-from pretreat import data
+from .cnn.net import model
+from .pretreat import data
 from skimage import io
 import os
 import pandas as pd

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 from .cnn.net import model
-from .pretreat import data
+from .pretreat import mtwi2018
 from skimage import io
 import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+
+
 # x = tf.Variable(tf.zeros((100,10)), dtype=tf.float32, name = 'X');
 # x = 1 + x
 # sess = tf.Session()
@@ -29,32 +31,34 @@ import matplotlib.pyplot as plt
 # print(data.crop_img(points, img).shape)
 
 def read_data():
-	path = "E:/DL/Test/data/train/image_train"
-	files = os.listdir(path)
-	img_arr = []
-	txt_arr = []
+    path = "E:/DL/Test/data/train/image_train"
+    files = os.listdir(path)
+    img_arr = []
+    txt_arr = []
 
-	for file in files:
-		if not os.path.isdir(file):
-			name = os.path.splitext(file)
-			img = data.read_img(path + '/' + file)
-			txt = data.read_txt("E:/DL/Test/data/train/txt_train" + '/' + name[0] + '.txt')
-			container = np.array([])
-			for row in txt.itertuples():
-				arr = row[1].split(',', 8)
-				item = np.array(arr[0:8], dtype=np.float32)
-				string = arr[8]
-				box = data.fit(item)
-				# 裁剪
-				new_img = data.crop_img(box, img)
-				np.insert(container, 0, values=new_img, axis=0)
-				# print(points)
-				# new_img = data.crop_img(points, img)
-				# data.imgshow_pd(item, img)
-				# print(new_img.shape)
-				# plt.imshow(new_img)
-				# plt.show()
-		data.save_h5('./data.h5', container, 'X')
+    for file in files:
+        if not os.path.isdir(file):
+            name = os.path.splitext(file)
+            img = mtwi2018.read_img(path + '/' + file)
+            txt = mtwi2018.read_txt("E:/DL/Test/data/train/txt_train" + '/' + name[0] + '.txt')
+            container = np.array([])
+            for row in txt.itertuples():
+                arr = row[1].split(',', 8)
+                item = np.array(arr[0:8], dtype=np.float32)
+                string = arr[8]
+                box = mtwi2018.fit(item)
+                # 裁剪
+                new_img = mtwi2018.crop_img(box, img)
+                np.insert(container, 0, values=new_img, axis=0)
+            # print(points)
+            # new_img = data.crop_img(points, img)
+            # data.imgshow_pd(item, img)
+            # print(new_img.shape)
+            # plt.imshow(new_img)
+            # plt.show()
+            mtwi2018.save_h5('./data.h5', container, 'X')
+
+
 read_data()
 
 # print(imgs.shape, txts.shape)

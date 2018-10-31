@@ -87,6 +87,15 @@ def crop_img(box, img):
 
 
 def compute_angles(p1, p2):
+    """计算两点连线与x轴的角度。
+
+    Args:
+        p1: 第一个点。
+        p2: 第二个点。
+
+    Returns:
+        返回存有cos和sin的列表。
+    """
     p = p2 - p1
     print(p)
     r = np.linalg.norm(p)
@@ -96,6 +105,17 @@ def compute_angles(p1, p2):
 
 
 def rotation_matrix(sin, cos, tx, ty):
+    """求旋转矩阵。
+
+    Args:
+        sin: 旋转角度的sin值。
+        cos: 旋转角度的cos值。
+        tx: x轴的位移。
+        ty: y轴的位移。
+    
+    Returns:
+        返回旋转矩阵。
+    """
     return np.array([
         [cos, -sin, (1 - cos) * tx - ty * sin],
         [sin, cos, (1 - cos) * -ty - tx * sin],
@@ -104,6 +124,7 @@ def rotation_matrix(sin, cos, tx, ty):
 
 
 def imgshow(x1, y1, x2, y2, x3, y3, x4, y4, img):
+    """测试用。"""
     plt.imshow(img)
     plt.plot(x1, y1, 'o')
     plt.plot(x2, y2, 'o')
@@ -113,6 +134,7 @@ def imgshow(x1, y1, x2, y2, x3, y3, x4, y4, img):
 
 
 def imgshow_pd(df, img):
+    """测试用。"""
     plt.imshow(img)
     plt.plot(df[0], df[1], 'o')
     plt.plot(df[2], df[3], 'o')
@@ -122,6 +144,14 @@ def imgshow_pd(df, img):
 
 
 def sort_points(arr):
+    """排序矩形的顶点。
+
+    Args:
+        arr: 顶点数组。
+
+    Returns:
+        返回排序后的定点数组。
+    """
     i = 0
     new_arr = []
 
@@ -141,6 +171,7 @@ def sort_points(arr):
 
 
 def fit(arr):
+    """拟合矩形。"""
     X = arr[0::2]
     Y = arr[1::2]
     min_x = np.min(X)
@@ -167,3 +198,7 @@ def save_h5(file_name, data, name):
 def load_h5(file_name, name):
     h5 = h5py.File(file_name, 'r')
     return h5[name]
+
+
+def hello():
+    return 'hello';

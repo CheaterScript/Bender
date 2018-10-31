@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
+
 import tensorflow as tf
 from .cnn.net import model
 from .pretreat import mtwi2018

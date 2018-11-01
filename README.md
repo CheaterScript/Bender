@@ -1,1 +1,1 @@
-# Bender
+# Bender [![Build Status](https://travis-ci.org/luozan/Bender.svg?branch=master)](https://travis-ci.org/luozan/Bender)

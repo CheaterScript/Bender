@@ -201,4 +201,4 @@ def load_h5(file_name, name):
 
 
 def hello():
-    return 'hello';
+    return 'hello'

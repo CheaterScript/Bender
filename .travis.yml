@@ -1,5 +1,14 @@
 language: python
+
 python:
   - "3.5.6"
-script: true
+
+install:
+  - pip install -r requirements.txt
+  - pip install pylint
+
+script:
+  - pylint bender
+  - python -m unittest
+
 cache: pip

@@ -9,7 +9,3 @@ class TestMTWI2018(unittest.TestCase):
         """hello."""
         result = mtwi2018.hello()
         print(result)
-
-
-if __name__ == '__main__':
-	unittest.main()

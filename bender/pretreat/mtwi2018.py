@@ -1,10 +1,11 @@
+"""XXXX."""
+# import math
+# import os
 import pandas as pd
-import math
 import numpy as np
-from skimage import io, transform
+from skimage import io
 import matplotlib.pyplot as plt
-import h5py
-import os
+# import h5py
 
 
 def read_txt(file_name):
@@ -86,60 +87,60 @@ def crop_img(box, img):
     return img[box[0]:box[2], box[1]:box[3], :]
 
 
-def compute_angles(p1, p2):
+def compute_angles(p_1, p_2):
     """计算两点连线与x轴的角度。
 
     Args:
-        p1: 第一个点。
-        p2: 第二个点。
+        p_1: 第一个点。
+        p_2: 第二个点。
 
     Returns:
         返回存有cos和sin的列表。
     """
-    p = p2 - p1
-    print(p)
-    r = np.linalg.norm(p)
-    cos = p[0][0] / r
-    sin = p[1][0] / r
+    new_p = p_2 - p_1
+    print(new_p)
+    distance = np.linalg.norm(new_p)
+    cos = new_p[0][0] / distance
+    sin = new_p[1][0] / distance
     return [cos, sin]
 
 
-def rotation_matrix(sin, cos, tx, ty):
+def rotation_matrix(sin, cos, t_x, t_y):
     """求旋转矩阵。
 
     Args:
         sin: 旋转角度的sin值。
         cos: 旋转角度的cos值。
-        tx: x轴的位移。
-        ty: y轴的位移。
+        t_x: x轴的位移。
+        t_y: y轴的位移。
     
     Returns:
         返回旋转矩阵。
     """
     return np.array([
-        [cos, -sin, (1 - cos) * tx - ty * sin],
-        [sin, cos, (1 - cos) * -ty - tx * sin],
+        [cos, -sin, (1 - cos) * t_x - t_y * sin],
+        [sin, cos, (1 - cos) * -t_y - t_x * sin],
         [0, 0, 1]
     ])
 
 
-def imgshow(x1, y1, x2, y2, x3, y3, x4, y4, img):
-    """测试用。"""
-    plt.imshow(img)
-    plt.plot(x1, y1, 'o')
-    plt.plot(x2, y2, 'o')
-    plt.plot(x3, y3, 'o')
-    plt.plot(x4, y4, 'o')
-    plt.show()
+# def imgshow(x1, y1, x2, y2, x3, y3, x4, y4, img):
+#     """测试用。"""
+#     plt.imshow(img)
+#     plt.plot(x1, y1, 'o')
+#     plt.plot(x2, y2, 'o')
+#     plt.plot(x3, y3, 'o')
+#     plt.plot(x4, y4, 'o')
+#     plt.show()
 
 
-def imgshow_pd(df, img):
+def imgshow_pd(data_frame, img):
     """测试用。"""
     plt.imshow(img)
-    plt.plot(df[0], df[1], 'o')
-    plt.plot(df[2], df[3], 'o')
-    plt.plot(df[4], df[5], 'o')
-    plt.plot(df[6], df[7], 'o')
+    plt.plot(data_frame[0], data_frame[1], 'o')
+    plt.plot(data_frame[2], data_frame[3], 'o')
+    plt.plot(data_frame[4], data_frame[5], 'o')
+    plt.plot(data_frame[6], data_frame[7], 'o')
     plt.show()
 
 
@@ -156,49 +157,51 @@ def sort_points(arr):
     new_arr = []
 
     while i < 8:
-        p = [arr[i], arr[i + 1], 1]
-        new_arr.append(p)
+        point = [arr[i], arr[i + 1], 1]
+        new_arr.append(point)
         i += 2
 
     new_arr.sort(key=lambda x: (x[0], x[1]))
 
     if new_arr[2][1] > new_arr[3][1]:
-        t = new_arr[2]
+        _ = new_arr[2]
         new_arr[2] = new_arr[3]
-        new_arr[3] = t
+        new_arr[3] = _
 
     return new_arr
 
 
 def fit(arr):
     """拟合矩形。"""
-    X = arr[0::2]
-    Y = arr[1::2]
-    min_x = np.min(X)
-    min_y = np.min(Y)
-    max_x = np.max(X)
-    max_y = np.max(Y)
+    x_arr = arr[0::2]
+    y_arr = arr[1::2]
+    min_x = np.min(x_arr)
+    min_y = np.min(y_arr)
+    max_x = np.max(x_arr)
+    max_y = np.max(y_arr)
     return [min_x, min_y, max_x, max_y]
 
 
-def save_h5(file_name, data, name):
-    if not os.path.isfile(file_name):
-        h5 = h5py.File(file_name, 'w')
-        shape = data.shape
-        dataset = h5.create_dataset(name, data=data, maxshape=(None, shape[1], shape[2], shape[3]))
-    else:
-        h5 = h5py.File(file_name, 'r+')
-        shape = data.shape
-        # length = dataset.shape[0]
-        # dataset.resize((length + shape[0], shape[1], shape[2], shape[3]))
-        # dataset[dataset.shape[0]:length + shape[0]] = data
-        h5.close()
+# def save_h5(file_name, data, name):
+#     """不清楚干了啥。
+#     """
+#     if not os.path.isfile(file_name):
+#         h5 = h5py.File(file_name, 'w')
+#         shape = data.shape
+#         dataset = h5.create_dataset(name, data=data, maxshape=(None, shape[1], shape[2], shape[3]))
+#     else:
+#         h5 = h5py.File(file_name, 'r+')
+#         shape = data.shape
+#         # length = dataset.shape[0]
+#         # dataset.resize((length + shape[0], shape[1], shape[2], shape[3]))
+#         # dataset[dataset.shape[0]:length + shape[0]] = data
+#         h5.close()
 
 
-def load_h5(file_name, name):
-    h5 = h5py.File(file_name, 'r')
-    return h5[name]
+# def load_h5(file_name, name):
+#     h5 = h5py.File(file_name, 'r')
+#     return h5[name]
 
 
-def hello():
-    return 'hello'
+# def hello():
+#     return 'hello'

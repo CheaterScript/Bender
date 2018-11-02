@@ -1,14 +1,14 @@
 #!/usr/bin/python3
 
-import tensorflow as tf
-from .cnn.net import model
-from .pretreat import mtwi2018
-from skimage import io
+"""XXXXX."""
 import os
-import pandas as pd
+# import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-
+# import matplotlib.pyplot as plt
+# import tensorflow as tf
+# from .cnn.net import model
+# from skimage import io
+from .pretreat import mtwi2018
 
 # x = tf.Variable(tf.zeros((100,10)), dtype=tf.float32, name = 'X');
 # x = 1 + x
@@ -32,10 +32,15 @@ import matplotlib.pyplot as plt
 # print(data.crop_img(points, img).shape)
 
 def read_data():
+    """读取数据。
+    """
     path = "E:/DL/Test/data/train/image_train"
     files = os.listdir(path)
     img_arr = []
     txt_arr = []
+
+    _ = img_arr
+    _ = txt_arr
 
     for file in files:
         if not os.path.isdir(file):
@@ -46,7 +51,7 @@ def read_data():
             for row in txt.itertuples():
                 arr = row[1].split(',', 8)
                 item = np.array(arr[0:8], dtype=np.float32)
-                string = arr[8]
+                # string = arr[8]
                 box = mtwi2018.fit(item)
                 # 裁剪
                 new_img = mtwi2018.crop_img(box, img)

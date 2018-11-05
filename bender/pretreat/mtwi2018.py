@@ -2,6 +2,7 @@
 
 """mtwi2018 预处理模块。"""
 
+import math
 import numpy as np
 
 from skimage import io
@@ -24,6 +25,7 @@ def read_txt(file_name):
 
     Args:
         file_name: 文件路径。
+
     Returns:
         返回解析文件后得到的list。
     """
@@ -59,6 +61,7 @@ def rotation_matrix(sin, cos, tx_value, ty_value):
         [0, 0, 1]
     ])
 
+
 def sort_rectangle_vertices(vertices):
     """排序矩形的四个顶点。
 
@@ -66,6 +69,7 @@ def sort_rectangle_vertices(vertices):
 
     Args:
         vertices: 一个形状为(4, 2)的ndarray数组，存放矩形的四个顶点。
+
     Returns:
         返回排序后的顶点数组
     """
@@ -82,6 +86,21 @@ def sort_rectangle_vertices(vertices):
             bottom.append(item)
 
     top.sort(key=lambda item: item[0])
-    bottom.sort(key=lambda item: item[0])
+    bottom.sort(key=lambda item: item[0], reverse=True)
 
     return np.array(top + bottom)
+
+
+def calculate_angles(start, end):
+    """求两个点连线和水平面的锐角夹角。
+
+    Args:
+        start: 起点。
+        end: 终点。
+
+    Returns:
+        返回夹角弧度。
+    """
+    vector = end - start
+    return math.atan(vector[1] / vector[0])
+    

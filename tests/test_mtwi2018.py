@@ -6,6 +6,7 @@ import unittest
 import math
 import numpy as np
 
+from skimage import io, transform
 from bender.pretreat import mtwi2018
 
 
@@ -36,3 +37,34 @@ class TestMTWI2018(unittest.TestCase):
         result = mtwi2018.sort_rectangle_vertices(np.array([[0, -1], [1, 0], [-1, 0], [0, 1]]))
         self.assertEqual((4, 2), result.shape)
         self.assertTrue((np.array([[-1, 0], [0, 1], [1, 0], [0, -1]]) == result).all())
+
+    def test_calculate_angles(self):
+        """Test calculate a angle of two points."""
+        result = mtwi2018.calculate_angles(np.array([1, 1]), np.array([0, 0]))
+        self.assertEqual(math.atan(1), result)
+
+    def test_rotate_rectangle(self):
+        """Test complex function that rotate a rectangle."""
+        img = mtwi2018.read_img('./tests/data/mtwi2018/T1._WBXtXdXXXXXXXX_!!0-item_pic.jpg.jpg')
+        datas = mtwi2018.read_txt('./tests/data/mtwi2018/T1._WBXtXdXXXXXXXX_!!0-item_pic.jpg.txt')
+
+        for _, item in enumerate(datas):
+            points = np.array([
+                [item[0][0], item[0][1]],
+                [item[0][2], item[0][3]],
+                [item[0][4], item[0][5]],
+                [item[0][6], item[0][7]]
+            ])
+            #sort
+            points = mtwi2018.sort_rectangle_vertices(points)
+            #calculate angles
+            top = points[0, :]
+            bottom = points[3, :]
+            if abs(top[0] - bottom[0]) < 0.01:
+                pass
+            else:
+                radians = mtwi2018.calculate_angles(points[0, :], points[3, :])
+                new_img = transform.rotate(img, math.degrees(radians))
+                io.imshow(new_img)
+                io.show()
+

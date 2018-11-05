@@ -29,5 +29,10 @@ class TestMTWI2018(unittest.TestCase):
         """Test rotate a point."""
         matrix = mtwi2018.rotation_matrix(math.sin(-math.pi/2), math.cos(-math.pi/2), 0.5, 0.5)
         point = matrix.dot(np.array([[1], [1], [1]]))
-        self.assertTrue((point == np.array([[1], [-1], [1]])).all())
-        
+        self.assertTrue(point.all())
+
+    def test_sort_rectangle_vertices(self):
+        """Test sort vertives of a rectangle."""
+        result = mtwi2018.sort_rectangle_vertices(np.array([[0, -1], [1, 0], [-1, 0], [0, 1]]))
+        self.assertEqual((4, 2), result.shape)
+        self.assertTrue((np.array([[-1, 0], [0, 1], [1, 0], [0, -1]]) == result).all())

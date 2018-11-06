@@ -2,11 +2,12 @@
 
 """Test MTWI2018 module."""
 
+import os
 import unittest
 import math
 import numpy as np
 
-from skimage import io, transform
+from skimage import io
 from bender.pretreat import mtwi2018
 
 
@@ -43,28 +44,34 @@ class TestMTWI2018(unittest.TestCase):
         result = mtwi2018.calculate_angles(np.array([1, 1]), np.array([0, 0]))
         self.assertEqual(math.atan(1), result)
 
-    def test_rotate_rectangle(self):
+    def test_compute_bounds(self):
+        """Test calculate bounds of two vertices."""
+        bounds = mtwi2018.compute_bounds([1, 2.6], [2, 4])
+        self.assertTrue(bounds[0] == 1 and bounds[1] == 3 and bounds[2] == 2 and bounds[3] == 4)
+
+    def test_crop_text_img(self):
+        """Test crop image with vertices."""
+        img = io.imread('./tests/data/mtwi2018/T1._WBXtXdXXXXXXXX_!!0-item_pic.jpg.jpg')
+        new_img = mtwi2018.crop_text_img(img, [0, 0, 5, 0, 0, 5, 5, 5])
+        self.assertEqual((5, 5, 3), new_img.shape)
+
+    def test_crop_all_images(self):
         """Test complex function that rotate a rectangle."""
-        img = mtwi2018.read_img('./tests/data/mtwi2018/T1._WBXtXdXXXXXXXX_!!0-item_pic.jpg.jpg')
-        datas = mtwi2018.read_txt('./tests/data/mtwi2018/T1._WBXtXdXXXXXXXX_!!0-item_pic.jpg.txt')
+        IMG_PATH = './data/train/image_train'
+        DATA_PATH = './data/train/txt_train'
 
-        for _, item in enumerate(datas):
-            points = np.array([
-                [item[0][0], item[0][1]],
-                [item[0][2], item[0][3]],
-                [item[0][4], item[0][5]],
-                [item[0][6], item[0][7]]
-            ])
-            #sort
-            points = mtwi2018.sort_rectangle_vertices(points)
-            #calculate angles
-            top = points[0, :]
-            bottom = points[3, :]
-            if abs(top[0] - bottom[0]) < 0.01:
-                pass
-            else:
-                radians = mtwi2018.calculate_angles(points[0, :], points[3, :])
-                new_img = transform.rotate(img, math.degrees(radians))
-                io.imshow(new_img)
-                io.show()
-
+        files = os.listdir(IMG_PATH)
+        for file in files:
+            if not os.path.isdir(file):
+                img = mtwi2018.read_img(IMG_PATH + '/' + file)
+                datas = mtwi2018.read_txt(DATA_PATH + '/' + file.replace('.jpg.jpg', '.jpg.txt'))
+                print(file)
+                for _, item in enumerate(datas):
+                    if item[1] == '###':
+                        continue
+                    print(item)
+                    text_img = mtwi2018.crop_text_img(np.copy(img), item[0])
+                    print(text_img.shape)
+                    print()
+                    mtwi2018.save_img('./tests/data/%s_%s.jpg' % (file, _), text_img)
+                    self.assertTrue(text_img.shape[0] > 0)

@@ -56,13 +56,15 @@ class TestMTWI2018(unittest.TestCase):
         new_img = mtwi2018.crop_text_img(img, [0, 0, 5, 0, 0, 5, 5, 5])
         self.assertEqual((5, 5, 3), new_img.shape)
 
-    @unittest.skip("showing class skipping")
+    # @unittest.skip("showing class skipping")
     def test_crop_all_images(self):
         """Test complex function that rotate a rectangle."""
         img_path = './data/train/image_train'
         data_path = './data/train/txt_train'
 
         files = os.listdir(img_path)
+        print(len(files))
+        return
         for file in files:
             if not os.path.isdir(file):
                 img = mtwi2018.read_img(img_path + '/' + file)
@@ -70,12 +72,12 @@ class TestMTWI2018(unittest.TestCase):
                 datas = mtwi2018.read_txt(data_path + '/' + file)
                 print(file)
 
+                # 过滤gif
                 if len(img.shape) > 3:
                     img = img[0]
-
+                # 过滤带有Alpha通道的图
                 if img.shape[2] > 3:
                     img = color.rgba2rgb(img)
-
                 for _, item in enumerate(datas):
                     if item[1] == '###':
                         continue

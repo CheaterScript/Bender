@@ -147,10 +147,8 @@ def crop_text_img(img, vertices):
     if(top_left_point - bottom_left_point != 0).all():
         radians = calculate_angles(top_left_point, bottom_left_point)
 
-    print(math.degrees(radians), math.pi/18, math.pi * 17 / 18)
     if abs(radians) > math.radians(30) and abs(radians) < math.radians(60):
         rotated_img = transform.rotate(img, math.degrees(radians), True)
-        print(np.abs(top_left_point - bottom_left_point) > 3)
 
         offset = [0, 0, 0]
         offset[0] = abs(rotated_img.shape[1] - img.shape[1])/2
@@ -170,11 +168,13 @@ def crop_text_img(img, vertices):
         top_left_point = np.round((matrix.dot(top_left_point) + offset)).reshape(3)
         bottom_right_point = np.round((matrix.dot(bottom_right_point) + offset)).reshape(3)
 
+        top_left_point = np.array([top_left_point[1], top_left_point[0]])
+        bottom_right_point = np.array([bottom_right_point[1], bottom_right_point[0]])
+
         img = rotated_img
 
     bounds = compute_bounds(top_left_point, bottom_right_point)
-    print(img.shape)
-    print(bounds[0], bounds[2])
+
     return img[bounds[1]:bounds[3], bounds[0]:bounds[2]]
 
 

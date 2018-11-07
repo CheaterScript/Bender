@@ -3,11 +3,12 @@
 """Test MTWI2018 module."""
 
 import os
+import re
 import unittest
 import math
 import numpy as np
 
-from skimage import io
+from skimage import io, color
 from bender.pretreat import mtwi2018
 
 
@@ -55,23 +56,33 @@ class TestMTWI2018(unittest.TestCase):
         new_img = mtwi2018.crop_text_img(img, [0, 0, 5, 0, 0, 5, 5, 5])
         self.assertEqual((5, 5, 3), new_img.shape)
 
+    @unittest.skip("showing class skipping")
     def test_crop_all_images(self):
         """Test complex function that rotate a rectangle."""
-        IMG_PATH = './data/train/image_train'
-        DATA_PATH = './data/train/txt_train'
+        img_path = './data/train/image_train'
+        data_path = './data/train/txt_train'
 
-        files = os.listdir(IMG_PATH)
+        files = os.listdir(img_path)
         for file in files:
             if not os.path.isdir(file):
-                img = mtwi2018.read_img(IMG_PATH + '/' + file)
-                datas = mtwi2018.read_txt(DATA_PATH + '/' + file.replace('.jpg.jpg', '.jpg.txt'))
+                img = mtwi2018.read_img(img_path + '/' + file)
+                file = re.sub(r'.jpg$', '.txt', file)
+                datas = mtwi2018.read_txt(data_path + '/' + file)
                 print(file)
+
+                if len(img.shape) > 3:
+                    img = img[0]
+
+                if img.shape[2] > 3:
+                    img = color.rgba2rgb(img)
+
                 for _, item in enumerate(datas):
                     if item[1] == '###':
                         continue
-                    print(item)
+                    # print(item)
                     text_img = mtwi2018.crop_text_img(np.copy(img), item[0])
                     print(text_img.shape)
-                    print()
+                    if text_img.shape[0] == 0 or text_img.shape[1] == 0:
+                        continue
                     mtwi2018.save_img('./tests/data/%s_%s.jpg' % (file, _), text_img)
                     self.assertTrue(text_img.shape[0] > 0)

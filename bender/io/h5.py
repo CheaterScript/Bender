@@ -63,16 +63,21 @@ def append(file, data, path):
 
         dataset[start: dataset_shape[0]] = data
 
-def read(file, path):
+def read(file, path, start=0, end=0):
     """读取数据。
 
     Args:
         file: 文件路径。
         path: dataset路径。
+        start: 切片起点。
+        end: 切片终点。
 
     Returns:
         返回数据。
     """
     with h5py.File(file, mode='a') as h5_file:
-        dataset = h5_file[path][:]
+        if end > start:
+            dataset = h5_file[path][start:end]
+        else:
+            dataset = h5_file[path][start:]
     return dataset

@@ -61,16 +61,19 @@ class TestMTWI2018(unittest.TestCase):
         """Test complex function that rotate a rectangle."""
         img_path = './data/train/image_train'
         data_path = './data/train/txt_train'
+        count = 0
+        words = {}
 
         files = os.listdir(img_path)
         # print(len(files))
         # return
         for file in files:
+            print('%d / %d' % (count, len(files)))
+            count += 1
             if not os.path.isdir(file):
                 img = mtwi2018.read_img(img_path + '/' + file)
                 file = re.sub(r'.jpg$', '.txt', file)
                 datas = mtwi2018.read_txt(data_path + '/' + file)
-                print(file)
 
                 # 过滤gif
                 if len(img.shape) > 3:
@@ -81,10 +84,32 @@ class TestMTWI2018(unittest.TestCase):
                 for _, item in enumerate(datas):
                     if item[1] == '###':
                         continue
+
+                    for word in item[1]:
+                        words[word] = True
                     # print(item)
                     text_img = mtwi2018.crop_text_img(np.copy(img), item[0])
-                    print(text_img.shape)
                     if text_img.shape[0] == 0 or text_img.shape[1] == 0:
                         continue
                     mtwi2018.save_img('./tests/data/%s_%s.jpg' % (file, _), text_img)
                     self.assertTrue(text_img.shape[0] > 0)
+
+    @unittest.skip("showing class skipping")
+    def test_count_words(self):
+        """Test count words."""
+        data_path = './data/train/txt_train'
+        count = 0
+        words = {}
+
+        files = os.listdir(data_path)
+        for file in files:
+            print('%d / %d' % (count, len(files)))
+            count += 1
+            if not os.path.isdir(file):
+                datas = mtwi2018.read_txt(data_path + '/' + file)
+                for _, item in enumerate(datas):
+                    if item[1] == '###':
+                        continue
+                    for word in item[1]:
+                        words[word] = True
+        self.assertTrue(data_path)

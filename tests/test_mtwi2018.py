@@ -8,8 +8,9 @@ import unittest
 import math
 import numpy as np
 
-from skimage import io, color
+from skimage import io, color, transform
 from bender.pretreat import mtwi2018
+from bender.io import h5
 
 
 class TestMTWI2018(unittest.TestCase):
@@ -61,12 +62,21 @@ class TestMTWI2018(unittest.TestCase):
         """Test complex function that rotate a rectangle."""
         img_path = './data/train/image_train'
         data_path = './data/train/txt_train'
-        count = 0
-        words = {}
+        count = 1
+        words = mtwi2018.load_txt('./data/mtwi2018_words.txt')
+        width = 224
+        height = 224
+
+        path = './data/mtwi2018.h5'
+        h5.create(path)
+        h5.create_group(path, 'train')
+        h5.create_dataset(path, 'X', '/train', shape=(0, height, width, 3), dtype='int8', maxshape= (None, height, width, 3))
+        h5.create_dataset(path, 'Y', '/train', shape=(0, len(words)), dtype='int8', maxshape=(None, len(words)))
 
         files = os.listdir(img_path)
-        # print(len(files))
-        # return
+        labels = np.zeros((100, len(words)))
+        imgs = np.zeros((100, width, height, 3))
+        pointer = 0
         for file in files:
             print('%d / %d' % (count, len(files)))
             count += 1
@@ -85,20 +95,38 @@ class TestMTWI2018(unittest.TestCase):
                     if item[1] == '###':
                         continue
 
-                    for word in item[1]:
-                        words[word] = True
-                    # print(item)
                     text_img = mtwi2018.crop_text_img(np.copy(img), item[0])
                     if text_img.shape[0] == 0 or text_img.shape[1] == 0:
                         continue
-                    mtwi2018.save_img('./tests/data/%s_%s.jpg' % (file, _), text_img)
+
+                    text_img = transform.resize(text_img, (height, width, 3))
+                    # mtwi2018.save_img('./tests/data/%s_%s.jpg' % (file, _), text_img)
+                    # 存入数组
+                    labels[pointer] = mtwi2018.one_hot(item[1], words)
+                    imgs[pointer] = text_img
+
+                    pointer += 1
+                    if pointer >= 100:
+                        pointer = 0
+                        # 写入
+                        h5.append(path, labels, '/train/Y')
+                        h5.append(path, imgs, '/train/X')
+                        # 重置
+                        labels = np.zeros((100, len(words)))
+                        imgs = np.zeros((100, width, height, 3))
+
                     self.assertTrue(text_img.shape[0] > 0)
+
+        # 写入
+        if pointer > 0:
+            h5.append(path, labels[0:pointer], '/train/Y')
+            h5.append(path, imgs[0:pointer], '/train/X')
 
     @unittest.skip("showing class skipping")
     def test_count_words(self):
         """Test count words."""
         data_path = './data/train/txt_train'
-        count = 0
+        count = 1
         words = {}
 
         files = os.listdir(data_path)
@@ -112,4 +140,16 @@ class TestMTWI2018(unittest.TestCase):
                         continue
                     for word in item[1]:
                         words[word] = True
+
+        keys = words.keys()
+        l = mtwi2018.load_txt('./data/mtwi2018_words.txt')
+        print(len(l))
+        path = './data/mtwi2018.h5'
+        h5.create(path)
+        h5.create_group(path, 'train')
         self.assertTrue(data_path)
+
+    def test_read_words(self):
+        path = './data/mtwi2018.h5'
+        result = h5.read(path, '/train/Y', 1, 2)
+        print(result[:, 0: 10])

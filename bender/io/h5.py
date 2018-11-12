@@ -26,7 +26,7 @@ def create_group(file, name):
         h5_file.create_group(name)
 
 
-def create_dataset(file, name, shape=None, dtype=None, data=None, **kwds):
+def create_dataset(file, name, group=None, shape=None, dtype=None, data=None, **kwds):
     """创建Dataset。
 
     Args:
@@ -37,9 +37,8 @@ def create_dataset(file, name, shape=None, dtype=None, data=None, **kwds):
         kwds: 更多请参考h5py文档。
     """
     with h5py.File(file, mode='a') as h5_file:
-        keys = h5_file.keys()
-        for key in keys:
-            print(key)
+        if group is not None:
+            h5_file = h5_file[group]
         h5_file.create_dataset(name, shape, dtype, data, **kwds)
 
 
@@ -63,6 +62,7 @@ def append(file, data, path):
 
         dataset[start: dataset_shape[0]] = data
 
+
 def read(file, path, start=0, end=0):
     """读取数据。
 
@@ -81,3 +81,18 @@ def read(file, path, start=0, end=0):
         else:
             dataset = h5_file[path][start:]
     return dataset
+
+
+def len(file, path):
+    """获取dataset第一维长度。
+
+    Args:
+        file: 文件路径。
+        path: dataset路径。
+
+    Returns:
+        返回长度。
+    """
+    with h5py.File(file, mode='r') as h5_file:
+        length = h5_file[path].len()
+    return length

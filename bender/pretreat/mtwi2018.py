@@ -19,6 +19,7 @@ def read_img(file_name):
     """
     return io.imread(file_name)
 
+
 def save_img(file_name, arr):
     """保存图片。
 
@@ -117,7 +118,7 @@ def inverted_y(coordinate_y, height):
     """反转y坐标。
 
     Args:
-        y: y坐标。
+        coordinate_y: y坐标。
         height: 高度。
 
     Returns:
@@ -125,12 +126,14 @@ def inverted_y(coordinate_y, height):
     """
     return abs(coordinate_y - height)
 
+
 def crop_text_img(img, vertices):
     """裁剪图片。
 
     用顶点裁剪图片
 
     Args:
+        img: 图片的ndarray数组。
         vertices: 一个数组，存放了四边形的四个顶点。
 
     Returns:
@@ -201,3 +204,44 @@ def compute_bounds(top_left, bottom_right):
     end_y = start_y + abs(top_y - bottom_y)
 
     return np.array([start_x, start_y, end_x, end_y])
+
+
+def write_txt(file, datas):
+    """保存为txt文件
+
+    Args:
+        file: 文件路径。
+        datas: List数据。
+    """
+    with open(file, 'w', encoding='utf-8') as txt_file:
+        txt_file.write(''.join(datas))
+
+
+def load_txt(file):
+    """读取文本文件。
+
+    Args:
+        file: 文件路径。
+
+    Returns:
+        返回list。
+    """
+    with open(file, 'r', encoding='utf-8') as txt_file:
+        return list(txt_file.read())
+
+
+def one_hot(string, words):
+    """One-hot编码。
+
+    Args:
+        string: 字符串。
+        words: 标签集。
+
+    Returns:
+        返回编码数组。
+    """
+    labels = np.zeros(len(words))
+    for word in string:
+        index = words.index(word)
+        labels[index] = 1
+    return labels

@@ -57,15 +57,21 @@ class TestMTWI2018(unittest.TestCase):
         new_img = mtwi2018.crop_text_img(img, [0, 0, 5, 0, 0, 5, 5, 5])
         self.assertEqual((5, 5, 3), new_img.shape)
 
-    @unittest.skip("showing class skipping")
+    def test_pad(self):
+        """Test pad a image."""
+        img = io.imread('./tests/data/mtwi2018/T1._WBXtXdXXXXXXXX_!!0-item_pic.jpg.jpg')
+        new_img = mtwi2018.pad(img)
+        self.assertEqual(new_img.shape[0], new_img.shape[1])
+
+    # @unittest.skip("showing class skipping")
     def test_crop_all_images(self):
         """Test complex function that rotate a rectangle."""
         img_path = './data/train/image_train'
         data_path = './data/train/txt_train'
         count = 1
         words = mtwi2018.load_txt('./data/mtwi2018_words.txt')
-        width = 224
-        height = 224
+        width = 64
+        height = 64
 
         path = './data/mtwi2018.h5'
         h5.create(path)
@@ -99,11 +105,14 @@ class TestMTWI2018(unittest.TestCase):
                     if text_img.shape[0] == 0 or text_img.shape[1] == 0:
                         continue
 
+                    # 扩展为方阵
+                    text_img = mtwi2018.pad(text_img)
                     text_img = transform.resize(text_img, (height, width, 3))
                     # mtwi2018.save_img('./tests/data/%s_%s.jpg' % (file, _), text_img)
                     # 存入数组
                     labels[pointer] = mtwi2018.one_hot(item[1], words)
-                    imgs[pointer] = text_img
+                    imgs[pointer] = text_img/255
+                    # mtwi2018.save_img('./data/temp/file_'+str(_)+'.jpg', text_img)
 
                     pointer += 1
                     if pointer >= 100:
@@ -142,6 +151,7 @@ class TestMTWI2018(unittest.TestCase):
                         words[word] = True
 
         keys = words.keys()
+        mtwi2018.write_txt('./data/mtwi2018_words.txt', keys)
         l = mtwi2018.load_txt('./data/mtwi2018_words.txt')
         print(len(l))
         path = './data/mtwi2018.h5'
@@ -149,6 +159,7 @@ class TestMTWI2018(unittest.TestCase):
         h5.create_group(path, 'train')
         self.assertTrue(data_path)
 
+    @unittest.skip("showing class skipping")
     def test_read_words(self):
         path = './data/mtwi2018.h5'
         result = h5.read(path, '/train/Y', 1, 2)

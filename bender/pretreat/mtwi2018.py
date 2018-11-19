@@ -245,3 +245,31 @@ def one_hot(string, words):
         index = words.index(word)
         labels[index] = 1
     return labels
+
+
+def pad(image):
+    """填充图片边距。
+
+    Args:
+        image: 图片。
+
+    Returns:
+        返回新图片。
+    """
+    shape = image.shape
+    width = shape[0]
+    height = shape[1]
+
+    if width == height:
+        return image
+
+    max_value = max(width, height)
+
+    width = max_value - width
+    height = max_value - height
+
+    padding_left = int(width / 2)
+    padding_top = int(height / 2)
+    out_shape = ((padding_left, padding_left), (padding_top, padding_top), (0, 0))
+
+    return np.pad(image, out_shape, 'constant', constant_values=(0, 0))

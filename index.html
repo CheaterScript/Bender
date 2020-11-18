@@ -1,0 +1,98 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+    <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+    <style rel="stylesheet">
+        .color-red {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <table>
+            <tr v-for="(item, index) in items" :key="index">
+                <td><input type="checkbox" v-model="item.checked" @click="calAmount"></td>
+                <td>{{item.name}}</td>
+                <td>{{item.price}}</td>
+                <td>
+                    <button @click="remove(index)"> - </button>
+                    <span>{{item.count}}</span>
+                    <button @click="add(index)"> + </button>
+                </td>
+            </tr>
+        </table>
+        <h2><span class="color-red">¥ {{getTotal}}</span></h2>
+    </div>
+    <script type="text/javascript">
+        let getGoods = function () {
+            const URL = 'http://www.codeforest.cn/files/tmp/goods.php';
+            return axios.get(URL);
+        };
+        new Vue({
+            el: '#app',
+            data: {
+                total: 0,
+                items: [
+                    { name: 'xxx牌牛仔裤', price: 1, count: 0, checked: false },
+                    { name: 'xxx牌大衣', price: 2, count: 0, checked: false },
+                    { name: 'xxx牌贝雷帽', price: 3, count: 0, checked: false }
+                ]
+            },
+            created() {
+                this.fetchData();
+            },
+            computed: {
+                getTotal() {
+                    return this.total.toFixed(2);
+                }
+            },
+            methods: {
+                async fetchData() {
+                    const result = await getGoods();
+                    if (result.status !== 200) {
+                        return;
+                    }
+                    this.items = result.data.data;
+                },
+                add(id) {
+                    if (id < 0 || id >= this.items.length) {
+                        return;
+                    }
+                    let item = this.items[id];
+                    item.count++;
+                    this.calAmount();
+                },
+                remove(id) {
+                    if (id < 0 || id >= this.items.length) {
+                        return;
+                    }
+                    let item = this.items[id];
+                    item.count = Math.max(0, item.count - 1);
+                    this.calAmount();
+                },
+                calAmount() {
+                    let sum = 0;
+                    const len = this.items.length;
+                    for (let i = 0; i < len; ++i) {
+                        let item = this.items[i];
+                        if (!item.checked) {
+                            continue;
+                        }
+                        sum += item.count * item.price;
+                    }
+                    this.total = sum;
+                }
+            }
+        })    
+    </script>
+</body>
+
+</html>
+</body>
+
+</html>
